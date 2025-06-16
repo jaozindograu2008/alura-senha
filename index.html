@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>criador de senha</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to right, #4c72a4, #161947);
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .caixa {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 400px;
+        width: 90%;
+        box-sizing: border-box;
+    }
+
+    h1 {
+        text-align: center;
+        color: #1539c7;
+        margin-bottom: 20px;
+    }
+
+    .opcoes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    input[type="number"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    input[type="checkbox"] {
+        margin-right: 6px;
+    }
+
+    button {
+        background-color: #1518c7;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 15px;
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #1712a3;
+    }
+
+    textarea {
+        margin-top: 15px;
+        height: 100px;
+        resize: none;
+        font-family: monospace;
+    }
+
+    #forca {
+        font-weight: bold;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    #nivel-forca {
+        padding: 3px 8px;
+        border-radius: 4px;
+    }
+
+    #nivel-forca.fraca {
+        background-color: #ffb3b3;
+        color: #a10000;
+    }
+
+    #nivel-forca.media {
+        background-color: #ffd580;
+        color: #a16500;
+    }
+
+    #nivel-forca.forte {
+        background-color: #b3ffb3;
+        color: #008000;
+    }
+
+    #nivel-forca.muito-forte {
+        background-color: #8fefa8;
+        color: #006400;
+    }
+
+    #quantidade-senhas{
+        display: none;
+    }
+
+    @media (max-width: 480px) {
+        .caixa {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 22px;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="caixa">
+        <div class="opcoes">
+            <input type="number" id="quantidade-senhas" min="1" value="1"><br>
+
+            <label for="tamanho-senha">Número de caracteres:</label>
+            <input type="number" id="tamanho-senha" min="1" value="12">
+
+            <label><input type="checkbox" id="letras-maiusculas"> Letras maiúsculas</label>
+            <label><input type="checkbox" id="letras-minusculas" checked> Letras minúsculas</label>
+            <label><input type="checkbox" id="numeros" checked> Números</label>
+            <label><input type="checkbox" id="caracteres-especiais"> Caracteres especiais</label>
+        </div>
+
+        <button onclick="gerarSenhas()">Gerar Senha</button><br>
+        <textarea id="campo-senhas" readonly></textarea>
+        <div id="forca">Força da senha: <span id="nivel-forca">-</span></div>
+    </div>
+
+    <script>
+        function gerarSenhas() {
+            var tamanho = parseInt(document.getElementById('tamanho-senha').value);
+            var maiusculas = document.getElementById('letras-maiusculas').checked;
+            var minusculas = document.getElementById('letras-minusculas').checked;
+            var numeros = document.getElementById('numeros').checked;
+            var especiais = document.getElementById('caracteres-especiais').checked;
+            var quantidade = parseInt(document.getElementById('quantidade-senhas').value);
+            var campo = document.getElementById('campo-senhas');
+            var caracteres = '';
+            var resultado = '';
+
+            if (maiusculas) caracteres += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (minusculas) caracteres += 'abcdefghijklmnopqrstuvwxyz';
+            if (numeros) caracteres += '0123456789';
+            if (especiais) caracteres += '!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
+
+            for (var i = 0; i < quantidade; i++) {
+                var senha = gerarSenha(tamanho, caracteres);
+                resultado += senha + '\n';
+            }
+
+            campo.value = resultado;
+        }
+
+        function gerarSenha(tamanho, caracteres) {
+            var senha = '';
+            for (var i = 0; i < tamanho; i++) {
+                var aleatorio = Math.floor(Math.random() * caracteres.length);
+                senha += caracteres[aleatorio];
+            }
+            return senha;
+        }
+
+        function verificarForca() {
+            var tamanho = parseInt(document.getElementById('tamanho-senha').value);
+            var maiusculas = document.getElementById('letras-maiusculas').checked;
+            var minusculas = document.getElementById('letras-minusculas').checked;
+            var numeros = document.getElementById('numeros').checked;
+            var especiais = document.getElementById('caracteres-especiais').checked;
+
+            var forca = 0;
+            if (tamanho >= 8) forca++;
+            if (maiusculas) forca++;
+            if (minusculas) forca++;
+            if (numeros) forca++;
+            if (especiais) forca++;
+
+            var nivel = document.getElementById('nivel-forca');
+            nivel.className = '';
+
+            if (forca <= 2) {
+                nivel.textContent = 'Fraca';
+                nivel.classList.add('fraca');
+            } else if (forca === 3) {
+                nivel.textContent = 'Média';
+                nivel.classList.add('media');
+            } else if (forca === 4) {
+                nivel.textContent = 'Forte';
+                nivel.classList.add('forte');
+            } else {
+                nivel.textContent = 'Muito Forte';
+                nivel.classList.add('muito-forte');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            var ids = ['tamanho-senha', 'letras-maiusculas', 'letras-minusculas', 'numeros', 'caracteres-especiais'];
+            ids.forEach(id => {
+                document.getElementById(id).addEventListener('input', verificarForca);
+                document.getElementById(id).addEventListener('change', verificarForca);
+            });
+            verificarForca();
+        });
+    </script>
+
+</body>
+</html>
